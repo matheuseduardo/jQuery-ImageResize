@@ -109,13 +109,15 @@
                                 });
 
                             };
+                            
                             canvasSettings.img.onerror = function() {
                                 settings.onFailure("Please upload a file.");
                             };
                         });
                     }
-                        //Read the file
-                        reader.readAsDataURL(uploadedFile);
+                    
+                    //Read the file
+                    reader.readAsDataURL(uploadedFile);
 
                 }
             } else {
