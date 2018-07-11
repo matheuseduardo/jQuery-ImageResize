@@ -105,7 +105,7 @@
                                 }
                                 
                                 selector.each(function () {
-                                    if ($(this).val() !== "") {
+                                    if ($(this).val() !== "" && settings.onComplete !== null && typeof (settings.onComplete) == "function") {
                                         settings.onComplete(fileData, true, $(this));
                                     }
                                 });
