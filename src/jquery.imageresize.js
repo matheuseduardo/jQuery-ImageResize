@@ -8,37 +8,37 @@
             onComplete: null,
             onFailure: null
     };
-
+        
         var settings = $.extend({}, defaults, options);
         var selector = $(this);
-
+        
         selector.each(function(index) {
             var control = selector.get(index);
-            if ($(control).attr("tagName").toLowerCase() == "input" && $(control).attr("type").toLowerCase() == "file") {
-                $(control).attr("accept", "image/*");
-                $(control).attr("multiple", "true");
-
+            if ($(control).prop("tagName").toLowerCase() == "input" && $(control).prop("type").toLowerCase() == "file") {
+                $(control).prop("accept", "image/*");
+                $(control).prop("multiple", "true");
+                
                 control.addEventListener('change', handleFileSelect, false);
             } else {
                 settings.onFailure("Invalid file input field");
             }
         });
-
+        
         function handleFileSelect() {
             //Check File API support
             if (window.File && window.FileList && window.FileReader) {
                 var files = event.target.files;
-
+                
                 if (files.length === 0) {
                     settings.onFailure("");
                     return false;
                 }
-
+                
                 for (var i = 0; i < files.length; i++) {
                     var uploadedFile = files[i];
                     ////Only pics
                     var reader = new FileReader();
-
+                    
                     if (!uploadedFile.type.match('image')) {
                         reader.addEventListener("load", function(event) {
                             var file = event.target;
@@ -54,7 +54,7 @@
                         reader.addEventListener("load", function(event) {
                             var file = event.target;
                             var fileData = file.result;
-
+                            
                             var canvasSettings = {
                                 width: 0,
                                 height: 0,
@@ -66,14 +66,14 @@
                             canvasSettings.img.onload = function() {
                                 canvasSettings.height = canvasSettings.img.height;
                                 canvasSettings.width = canvasSettings.img.width;
-
+                                
                                 if (settings.longestEdge == Number.MAX_VALUE) {
                                     if (canvasSettings.img.width > settings.maxWidth || canvasSettings.img.height > settings.maxHeight) {
-
+                                        
                                         if (canvasSettings.img.width > settings.maxWidth) {
                                             setBasedOnWidth(settings.maxWidth, canvasSettings);
                                         }
-
+                                        
                                         if (canvasSettings.height > settings.maxHeight) {
                                             setBasedOnHeight(settings.longestEdge, canvasSettings);
                                         }
@@ -90,24 +90,24 @@
                                         }
                                     }
                                 }
-
+                                
                                 var canvas = $("<canvas/>").get(0);
                                 canvas.width = canvasSettings.width;
                                 canvas.height = canvasSettings.height;
                                 var context = canvas.getContext('2d');
                                 context.drawImage(canvasSettings.img, 0, 0, canvasSettings.width, canvasSettings.height);
                                 fileData = canvas.toDataURL();
-
+                                
                                 if (settings.onImageResized !== null && typeof (settings.onImageResized) == "function") {
                                     settings.onImageResized(fileData);
                                 }
-
+                                
                                 selector.each(function () {
                                     if ($(this).val() !== "") {
                                         settings.onComplete(fileData, true, $(this));
                                     }
                                 });
-
+                                
                             };
                             
                             canvasSettings.img.onerror = function() {
@@ -118,25 +118,25 @@
                     
                     //Read the file
                     reader.readAsDataURL(uploadedFile);
-
+                    
                 }
             } else {
                 settings.onFailure("Your browser does not support File API");
             }
-
+            
         }
-
+        
         function setBasedOnWidth(adjustedWidth, canvasSettings) {
             canvasSettings.width = adjustedWidth;
             var ration = canvasSettings.width / canvasSettings.img.width;
             canvasSettings.height = Math.round(canvasSettings.img.height * ration);
         }
-
+        
         function setBasedOnHeight(adjustedHeight, canvasSettings) {
             canvasSettings.height = adjustedHeight;
             var ration = canvasSettings.height / canvasSettings.img.height;
             canvasSettings.width = Math.round(canvasSettings.img.width * ration);
         }
-
+        
     };
 }(jQuery));
