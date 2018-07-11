@@ -6,7 +6,9 @@
             longestEdge: Number.MAX_VALUE,
             onImageResized: null,
             onComplete: null,
-            onFailure: null
+            onFailure: function (message) { 
+                if (windows.console) { console.log(message) };
+            }
     };
         
         var settings = $.extend({}, defaults, options);
