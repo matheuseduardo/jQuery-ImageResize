@@ -4,11 +4,15 @@
             maxWidth: Number.MAX_VALUE,
             maxHeight: Number.MAX_VALUE,
             longestEdge: Number.MAX_VALUE,
+            maxFilesNumber: 3,
             onImageResized: null,
             onComplete: null,
             onFailure: function (message) { 
                 if (windows.console) { console.log(message) };
-            }
+            },
+            format: 'png',
+            qualityJpeg: 0.9,
+            debugLevel: 0
     };
         
         var settings = $.extend({}, defaults, options);
@@ -30,15 +34,15 @@
             //Check File API support
             if (window.File && window.FileList && window.FileReader) {
                 var files = event.target.files;
-                
                 if (files.length === 0) {
-                    settings.onFailure("");
+                    settings.onFailure("No file selected.");
                     return false;
                 }
                 
                 for (var i = 0; i < files.length; i++) {
                     var uploadedFile = files[i];
-                    ////Only pics
+                    
+                    // Only pics
                     var reader = new FileReader();
                     
                     if (!uploadedFile.type.match('image')) {
@@ -98,7 +102,14 @@
                                 canvas.height = canvasSettings.height;
                                 var context = canvas.getContext('2d');
                                 context.drawImage(canvasSettings.img, 0, 0, canvasSettings.width, canvasSettings.height);
-                                fileData = canvas.toDataURL();
+                                
+                                if (settings.format.match(/jpe?g/gi)) {
+                                    qualityJpeg = !isNaN(settings.qualityJpeg) ? settings.qualityJpeg : 0.9;
+                                    fileData = canvas.toDataURL('image/jpeg', qualityJpeg);
+                                }
+                                else {
+                                    fileData = canvas.toDataURL();
+                                }
                                 
                                 if (settings.onImageResized !== null && typeof (settings.onImageResized) == "function") {
                                     settings.onImageResized(fileData);
