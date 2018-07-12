@@ -5,15 +5,16 @@
             maxHeight: Number.MAX_VALUE,
             longestEdge: Number.MAX_VALUE,
             maxFilesNumber: 3,
+            onBeforeResize: null,
             onImageResized: null,
             onComplete: null,
             onFailure: function (message) { 
-                if (windows.console) { console.log(message) };
+                if (window.console) { console.log(message) };
             },
             format: 'png',
             qualityJpeg: 0.9,
             debugLevel: 0
-    };
+        };
         
         var settings = $.extend({}, defaults, options);
         var selector = $(this);
@@ -31,6 +32,11 @@
         });
         
         function handleFileSelect() {
+            
+            if (settings.onBeforeResize !== null && typeof (settings.onBeforeResize) == "function") {
+                settings.onBeforeResize();
+            }
+            
             //Check File API support
             if (window.File && window.FileList && window.FileReader) {
                 var files = event.target.files;
@@ -41,22 +47,13 @@
                 
                 for (var i = 0; i < files.length; i++) {
                     var uploadedFile = files[i];
-                    
-                    // Only pics
                     var reader = new FileReader();
                     
+                    // Only pics
                     if (!uploadedFile.type.match('image')) {
-                        reader.addEventListener("load", function(event) {
-                            var file = event.target;
-                            var fileData = file.result;
-                            selector.each(function () {
-                                if ($(this).val() !== "") {
-                                    settings.onFailure("Please upload an image");
-                                    return;
-                                }
-                            });
-                        });
-                    } else {
+                        settings.onFailure("File " + uploadedFile.name + " does not match image type.");
+                    }
+                    else {
                         reader.addEventListener("load", function(event) {
                             var file = event.target;
                             var fileData = file.result;
