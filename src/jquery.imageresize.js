@@ -7,7 +7,6 @@
             maxFilesNumber: 3,
             onBeforeResize: null,
             onImageResized: null,
-            onComplete: null,
             onFailure: function (message) { 
                 if (window.console) { console.log(message) };
             },
@@ -111,12 +110,6 @@
                                 if (settings.onImageResized !== null && typeof (settings.onImageResized) == "function") {
                                     settings.onImageResized(fileData);
                                 }
-                                
-                                selector.each(function () {
-                                    if ($(this).val() !== "" && settings.onComplete !== null && typeof (settings.onComplete) == "function") {
-                                        settings.onComplete(fileData, true, $(this));
-                                    }
-                                });
                                 
                             };
                             
