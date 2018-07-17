@@ -44,6 +44,8 @@
                     return false;
                 }
                 
+                var count = 0;
+                
                 for (var i = 0; i < files.length; i++) {
                     var uploadedFile = files[i];
                     var reader = new FileReader();
@@ -53,6 +55,11 @@
                         settings.onFailure("File " + uploadedFile.name + " does not match image type.");
                     }
                     else {
+                        
+                        reader.fileIndex = count;
+                        reader.fileName = uploadedFile.name;
+                        reader.fileSize = uploadedFile.size;
+                        
                         reader.addEventListener("load", function(event) {
                             var file = event.target;
                             var fileData = file.result;
@@ -64,8 +71,11 @@
                                 adjustedWidth: Number.MAX_VALUE,
                                 img: new Image()
                             };
+                            
+                            canvasSettings.img.reader = this;
+                            
                             canvasSettings.img.src = fileData;
-                            canvasSettings.img.onload = function() {
+                            canvasSettings.img.onload = function(e) {
                                 canvasSettings.height = canvasSettings.img.height;
                                 canvasSettings.width = canvasSettings.img.width;
                                 
@@ -80,13 +90,15 @@
                                             setBasedOnHeight(settings.longestEdge, canvasSettings);
                                         }
                                     }
-                                } else {
+                                }
+                                else {
                                     var widthIsLongest = (canvasSettings.img.width > canvasSettings.img.height) ? true : false;
                                     if (widthIsLongest) {
                                         if (canvasSettings.img.width > settings.longestEdge) {
                                             setBasedOnWidth(settings.longestEdge, canvasSettings);
                                         }
-                                    } else {
+                                    }
+                                    else {
                                         if (canvasSettings.img.height > settings.longestEdge) {
                                             setBasedOnHeight(settings.longestEdge, canvasSettings);
                                         }
@@ -99,6 +111,7 @@
                                 var context = canvas.getContext('2d');
                                 context.drawImage(canvasSettings.img, 0, 0, canvasSettings.width, canvasSettings.height);
                                 
+                                // verify format / quality
                                 if (settings.format.match(/jpe?g/gi)) {
                                     qualityJpeg = !isNaN(settings.qualityJpeg) ? settings.qualityJpeg : 0.9;
                                     fileData = canvas.toDataURL('image/jpeg', qualityJpeg);
@@ -107,8 +120,9 @@
                                     fileData = canvas.toDataURL();
                                 }
                                 
+                                // callback function
                                 if (settings.onImageResized !== null && typeof (settings.onImageResized) == "function") {
-                                    settings.onImageResized(fileData);
+                                    settings.onImageResized(fileData, this.reader.fileIndex, this.reader.fileName, this.reader.fileSize);
                                 }
                                 
                             };
